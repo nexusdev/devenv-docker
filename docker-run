@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+# Bind Docker ports to host ports so IPFS can reach the
+# outside world. Also, run the machine as a daemon.
+docker run -d -p 4001:4001 -p 5001:5001 -p 8080:8080 -p 2121:21 -p 2222:22 -p 30000-30009:30000-30009 $@
