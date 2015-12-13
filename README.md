@@ -34,13 +34,15 @@ container ports bind to), you may consider using `docker run` directly.
 
 ```
 $ ./docker-run --name nexus ryepdx/nexus_dev
-$ docker exec -it nexus ssh-agent bash
+$ docker exec -it nexus bash
 
 # passwd dev
 (enter new password for 'dev' user)
 # chown -R dev /home/dev/.ssh
 # chgrp -R dev /home/dev/.ssh
 # exit
+
+$ docker exec -u dev -it nexus bash
 ```
 
 By default, the unprivileged dev user's password is "nexus". Since this is not a
@@ -93,6 +95,15 @@ $ docker exec -u dev -it nexus bash
 $ chmod -w ~/.ssh/*
 $ chmod og-r ~/.ssh/*
 $ exit
+```
+
+After this, you can use `ssh-agent bash` and `ssh-add` to have your container
+use your Github key when pushing without prompting for your password every time:
+
+```
+$ docker exec -u dev -it nexus ssh-agent bash
+
+$ ssh-add ~/.ssh/github.key
 ```
 
 While the image ships with Vim installed, you may also use FTP to modify files
