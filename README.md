@@ -38,8 +38,6 @@ $ docker exec -it nexus bash
 
 # passwd dev
 (enter new password for 'dev' user)
-# chown -R dev /home/dev/.ssh
-# chgrp -R dev /home/dev/.ssh
 # exit
 
 $ docker exec -u dev -it nexus bash
@@ -61,6 +59,12 @@ fork the Nexus repositories, add your forks as new remotes, push to those, and
 issue pull requests.
 
 ```
+$ docker exec -it nexus bash
+
+# chown -R dev /home/dev/.ssh
+# chgrp -R dev /home/dev/.ssh
+# exit
+
 $ ifconfig
 
 ...
