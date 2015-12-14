@@ -59,12 +59,6 @@ fork the Nexus repositories, add your forks as new remotes, push to those, and
 issue pull requests.
 
 ```
-$ docker exec -it nexus bash
-
-# chown -R dev /home/dev/.ssh
-# chgrp -R dev /home/dev/.ssh
-# exit
-
 $ ifconfig
 
 ...
