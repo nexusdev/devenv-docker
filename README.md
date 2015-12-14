@@ -17,7 +17,7 @@ The image currently contains:
 - inotifytools
 - All of Nexus' Github repositories
 - An FTP server
-- A unprivileged "dev" user
+- A unprivileged default user
 
 The image is based on [a stripped-down Ubuntu
 distribution](https://github.com/phusion/baseimage-docker) and may also contain
@@ -36,11 +36,10 @@ container ports bind to), you may consider using `docker run` directly.
 $ ./docker-run --name nexus ryepdx/nexus_dev
 $ docker exec -it nexus bash
 
-# passwd dev
-(enter new password for 'dev' user)
-# exit
+$ passwd
+(Enter new password for 'dev' user. Current password is "nexus".)
 
-$ docker exec -u dev -it nexus bash
+$ exit
 ```
 
 By default, the unprivileged dev user's password is "nexus". Since this is not a
@@ -89,9 +88,8 @@ local: /home/ryepdx/.ssh/github.pub remote: .ssh/github.pub
 ftp> bye
 221 Goodbye. You uploaded 4 and downloaded 0 kbytes.
 
-$ docker exec -u dev -it nexus bash
-$ chmod -w ~/.ssh/*
-$ chmod og-r ~/.ssh/*
+$ docker exec -it nexus bash
+$ chmod 600 ~/.ssh/*
 $ exit
 ```
 
@@ -99,7 +97,7 @@ After this, you can use `ssh-agent bash` and `ssh-add` to have your container
 use your Github key when pushing without prompting for your password every time:
 
 ```
-$ docker exec -u dev -it nexus ssh-agent bash
+$ docker exec -it nexus ssh-agent bash
 
 $ ssh-add ~/.ssh/github.key
 ```
