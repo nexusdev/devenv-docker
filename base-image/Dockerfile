@@ -138,6 +138,9 @@ USER root
 # chown/chgrp dev's .ssh directory
 RUN mkdir /home/dev/.ssh && chown -R dev /home/dev/.ssh && chgrp -R dev /home/dev/.ssh
 
+# Enable SSH
+RUN rm -f /etc/service/sshd/down
+
 # Expose ports and set up daemon script 
 EXPOSE 20 21 22 4001 5001 8000 8080 8545 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 30303
 

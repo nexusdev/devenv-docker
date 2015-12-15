@@ -24,7 +24,7 @@ distribution](https://github.com/phusion/baseimage-docker) and may also contain
 other tools as a result. For a deeper understanding of this image, feel free to
 [examine the Dockerfile](base-image/Dockerfile).
 
-## Quickstart
+## Installation
 
 A shell script called [`docker-run`](docker-run) is provided to save you some
 typing. It wraps the `docker run` command, setting the `--daemon` flag and
@@ -34,28 +34,20 @@ container ports bind to), you may consider using `docker run` directly.
 
 ```
 $ ./docker-run --name nexus ryepdx/nexus_dev
-$ docker exec -it nexus bash
-
-$ passwd
-(Enter new password for 'dev' user. Current password is "nexus".)
-
-$ exit
 ```
 
-By default, the unprivileged dev user's password is "nexus". Since this is not a
-strong password, it is recommended you change it (as demonstrated above).
+To get into the container, you will need to provide an SSH key via FTP. If you
+don't have an SSH key ready, you can generate one using
+[ssh-keygen](http://www.cyberciti.biz/faq/linux-unix-generating-ssh-keys/) on
+Unix-like systems and
+[Putty](https://www.siteground.com/kb/how_to_generate_an_ssh_key_on_windows_using_putty/)
+on Windows systems.
 
-Be aware that the Docker container does not start automatically. You may need to
-run `docker start nexus` after restarting or logging out of your computer before
-you can run `docker exec` again.
-
-## Github Keys
-
-To get your Github SSH keys into the container, please use FTP. Also, please be
-aware that you will not have `push` permissions on the Github remotes that ship
-with this image. In order to get your code into those remotes, you will need to
-fork the Nexus repositories, add your forks as new remotes, push to those, and
-issue pull requests.
+The default password for the "dev" user is "nexus". You will use these login
+credentials to connect to the container via FTP. Below is a demonstration of
+this process using the `ftp` command provided on most Unix-like systems. Windows
+also sometimes comes with an `ftp` command, but if your copy is missing that,
+you can use something like [SmartFTP](https://www.smartftp.com/).
 
 ```
 $ ifconfig
@@ -74,6 +66,17 @@ Password:
 Remote system type is UNIX.
 Using binary mode to transfer files.
 
+ftp> put ~/.ssh/docker.pub .ssh/authorized_keys
+local: /home/ryepdx/.ssh/docker.pub remote: .ssh/authorized_keys
+200 PORT command successful
+150 Connecting to port 42773
+226-File successfully transferred
+```
+
+As long as you're FTPed in, you might as well also transfer over any Github
+keys you have.
+
+```
 ftp> put ~/.ssh/github.key .ssh/github.key
 local: /home/ryepdx/.ssh/github.key remote: .ssh/github.key
 200 PORT command successful
@@ -84,29 +87,57 @@ local: /home/ryepdx/.ssh/github.pub remote: .ssh/github.pub
 200 PORT command successful
 150 Connecting to port 54191
 226-File successfully transferred
+```
 
+And that's it for the FTPing.
+
+```
 ftp> bye
-221 Goodbye. You uploaded 4 and downloaded 0 kbytes.
+221 Goodbye.
 
-$ docker exec -it nexus bash
-$ chmod 600 ~/.ssh/*
+```
+
+Then you can use SSH to get into your Docker container using the private
+counterpart to the public key you uploaded. Once in, you should change your
+password. (The default is "nexus".) You should probably also update the
+permissions on your keys.
+
+``` 
+$ ssh -i ~/.ssh/docker.key -p 2222 dev@172.17.42.1
+
+$ passwd
+(Enter new password for 'dev' user. Current password is "nexus".)
+
+$ chmod 400 ~/.ssh/*.key*
+
 $ exit
 ```
 
-After this, you can use `ssh-agent bash` and `ssh-add` to have your container
-use your Github key when pushing without prompting for your password every time:
+You might consider aliasing that SSH command to something shorter to save
+yourself time in the future.
+
+Be aware that the Docker container does not start automatically. You may need to
+run `docker start nexus` after restarting or logging out of your computer before
+you can SSH in again.
+
+If you are using SSH keys to connect to Github, you might want to use
+`ssh-agent` and `ssh-add` to cut down on the number of times you have to enter
+your SSH key's password when pulling from and pushing to Github..
+
+In particular, you might consider adding these lines to your container's
+`~/.bashrc` file:
 
 ```
-$ docker exec -it nexus ssh-agent bash
-
-$ ssh-add ~/.ssh/github.key
+if [ ! -S ~/.ssh/ssh_auth_sock ]; then
+  eval `ssh-agent` > /dev/null
+  ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+fi
+export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+ssh-add -l | grep "The agent has no identities" && ssh-add -t 10800 ~/.ssh/github.key
 ```
 
-While the image ships with Vim installed, you may also use FTP to modify files
-in the container using an editor of your choice.
+This will make it so you're prompted upon SSHing in for your Github key's
+password and then left alone for three hours following.
 
-You may also consider adding the line `ssh-add ~/.ssh/github.key` to your
-`~/.bashrc` file. This will make it so the container prompts you once for your
-Github key password upon `exec`ing `ssh-agent bash` and then keeps your key
-unlocked for the duration of the session. Otherwise you will have to type your
-key's password each time you want to push to Github.
+Finally, while the image ships with Vim installed, you may also use FTP to
+modify files in the container using an editor of your choice.
