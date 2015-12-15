@@ -97,20 +97,28 @@ ftp> bye
 
 ```
 
-Then you can use SSH to get into your Docker container using the private
-counterpart to the public key you uploaded. Once in, you should change your
+Next we will need to get into our container as the root user and do some
+additional setup. Once in, you should change your
 password. (The default is "nexus".) You should probably also update the
 permissions on your keys.
 
+```
+$ docker -it nexus exec bash
+
+# passwd dev
+(Enter new password for 'dev' user.)
+
+# chmod 400 /home/dev/.ssh/*.key*
+
+# exit
+```
+
+Then you can use SSH to login to your Docker container as the unprivileged dev
+user via the private counterpart to the public key you uploaded. This is the way
+you should normally access your container.
+
 ``` 
 $ ssh -i ~/.ssh/docker.key -p 2222 dev@172.17.42.1
-
-$ passwd
-(Enter new password for 'dev' user. Current password is "nexus".)
-
-$ chmod 400 ~/.ssh/*.key*
-
-$ exit
 ```
 
 You might consider aliasing that SSH command to something shorter to save
@@ -128,6 +136,10 @@ In particular, you might consider adding these lines to your container's
 `~/.bashrc` file:
 
 ```
+if [ $(pgrep -c ssh-agent) -eq 0 ]; then
+  rm ~/.ssh/ssh_auth_sock > /dev/null
+fi
+
 if [ ! -S ~/.ssh/ssh_auth_sock ]; then
   eval `ssh-agent` > /dev/null
   ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
