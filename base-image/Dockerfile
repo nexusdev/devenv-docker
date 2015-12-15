@@ -126,7 +126,8 @@ RUN /bin/bash -c 'source /usr/local/bin/virtualenvwrapper.sh && \
     cd ~/devenv/dapple/pydapple && \
     mkvirtualenv nexus && \
     workon nexus && \
-    python setup.py install' && \
+    python setup.py install && \
+    pip install livereload' && \
     echo "workon nexus" >> $HOME/.bashrc
 
 RUN ln -s ~/devenv/dapple/cmd/main.js ~/bin/dapple
