@@ -110,7 +110,7 @@ RUN cd ~/bin && \
     ~/bin/npm config set prefix ~/npm && \
     echo "export PATH=\"\$PATH:$HOME/npm/bin\"" >> ~/.bashrc && \
     echo "export NODE_PATH=\"\$NODE_PATH:$HOME/npm/lib/node_modules\"" >> ~/.bashrc && \
-    ~/bin/npm install -g eslint groc livereload
+    ~/bin/npm install -g eslint groc chai mocha requests web3
 
 # Nexus
 RUN cd ~ && \
