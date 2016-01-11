@@ -97,40 +97,37 @@ ftp> bye
 
 ```
 
-Next we will need to get into our container as the root user and do some
-additional setup. Once in, you should change your
-password. (The default is "nexus".) You should probably also update the
-permissions on your keys.
-
-```
-$ docker -it nexus exec bash
-
-# passwd dev
-(Enter new password for 'dev' user.)
-
-# chmod 400 /home/dev/.ssh/*.key*
-
-# exit
-```
-
 Then you can use SSH to login to your Docker container as the unprivileged dev
 user via the private counterpart to the public key you uploaded. This is the way
 you should normally access your container.
 
-``` 
+```
 $ ssh -i ~/.ssh/docker.key -p 2222 dev@172.17.42.1
 ```
 
 You might consider aliasing that SSH command to something shorter to save
 yourself time in the future.
 
-Be aware that the Docker container does not start automatically. You may need to
-run `docker start nexus` after restarting or logging out of your computer before
-you can SSH in again.
+To complete setup, you should change the dev user's password to something more
+secure and set the correct permissions on your keys.
+
+```
+$ passwd
+Changing password for dev.
+(current) UNIX password:
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: password updated successfully
+$ chmod 400 ~/.ssh/*.key*
+```
+
+Be aware that the Docker container does not start automatically when your system
+boots up. You may need to run `docker start nexus` after restarting or logging
+out of your computer before you can SSH in again.
 
 If you are using SSH keys to connect to Github, you might want to use
 `ssh-agent` and `ssh-add` to cut down on the number of times you have to enter
-your SSH key's password when pulling from and pushing to Github..
+your SSH key's password when pulling from and pushing to Github.
 
 In particular, you might consider adding these lines to your container's
 `~/.bashrc` file:
