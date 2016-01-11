@@ -1,7 +1,7 @@
 FROM phusion/baseimage:0.9.17
 MAINTAINER ryepdx
 
-# Pre-reqs 
+# Pre-reqs
 RUN apt-get -y -q update && \
     apt-get -y install language-pack-en-base && \
     dpkg-reconfigure locales && \
@@ -57,7 +57,7 @@ RUN apt-get install -y inotify-tools
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add non-root user.
-RUN useradd -m -s /bin/bash dev 
+RUN useradd -m -s /bin/bash dev
 RUN echo dev:nexus | chpasswd
 
 # Install most of the environment under the non-root user
@@ -90,7 +90,7 @@ RUN pip completion --bash >> ~/.bashrc && \
     mkdir ~/.virtualenvs && \
     echo "export WORKON_HOME=\$WORKON_HOME" >> ~/.bashrc && \
     echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc && \
-    echo "export PIP_VIRTUALENV_BASE=\$WORKON_HOME" >> ~/.bashrc 
+    echo "export PIP_VIRTUALENV_BASE=\$WORKON_HOME" >> ~/.bashrc
 
 # IPFS
 RUN echo "export PATH=\$GOPATH/bin:\$PATH:" >> ~/.bashrc && \
@@ -135,13 +135,16 @@ RUN ln -s ~/devenv/dapple/cmd/main.js ~/bin/dapple
 # Switch back to root so we can run our daemons
 USER root
 
+# Add user to sudoers
+RUN adduser dev sudo
+
 # chown/chgrp dev's .ssh directory
 RUN mkdir /home/dev/.ssh && chown -R dev /home/dev/.ssh && chgrp -R dev /home/dev/.ssh
 
 # Enable SSH
 RUN rm -f /etc/service/sshd/down
 
-# Expose ports and set up daemon script 
+# Expose ports and set up daemon script
 EXPOSE 20 21 22 4001 5001 8000 8080 8545 30000 30001 30002 30003 30004 30005 30006 30007 30008 30009 30303
 
 ADD ./start.sh /start.sh
