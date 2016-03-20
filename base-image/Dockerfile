@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.17
+FROM phusion/baseimage:0.9.18
 MAINTAINER ryepdx
 
 # Pre-reqs
@@ -93,9 +93,12 @@ RUN pip completion --bash >> ~/.bashrc && \
     echo "export PIP_VIRTUALENV_BASE=\$WORKON_HOME" >> ~/.bashrc
 
 # IPFS
-RUN echo "export PATH=\$GOPATH/bin:\$PATH:" >> ~/.bashrc && \
-    echo "export PATH=\$PATH:/usr/local/opt/go/libexec/bin" >> ~/.bashrc && \
-    go get -u github.com/ipfs/go-ipfs/cmd/ipfs
+RUN cd ~ && \
+    wget http://dist.ipfs.io/go-ipfs/v0.3.11/go-ipfs_v0.3.11_linux-amd64.tar.gz && \
+    tar xvfz go-ipfs_v0.3.11_linux-amd64.tar.gz && \
+    mv go-ipfs/ipfs /home/dev/bin/ipfs && \
+    rm go-ipfs_v0.3.11_linux-amd64.tar.gz && \
+    rm -fr go-ipfs
 
 # Node (home directory local install)
 ENV NODE_VERSION node-v5.1.1-linux-x64
